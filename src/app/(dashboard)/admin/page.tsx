@@ -1,14 +1,14 @@
-import { AdminCard } from "@/components/Admin/Admin-Card";
-import { AdminNotifications } from "@/components/Admin/AdminNotifications";
-import { BookingChartClient } from "@/components/Admin/BookingChart";
-import { FavoriteCategoryPieClient } from "@/components/Admin/FavoriteCategoryPie";
-import { getAdminStats } from "@/lib/actions/dashboard/adminStats";
-import { getMonthlyBooking } from "@/lib/actions/dashboard/getMonthlyBooking";
-import { getFavoriteCategory } from "@/lib/actions/dashboard/getFavoriteCategory";
+import { AdminCard } from "@/components/Admin/Dashboard/Admin-Card";
+import { AdminNotifications } from "@/components/Admin/Dashboard/AdminNotifications";
+import { BookingChartClient } from "@/components/Admin/Dashboard/BookingChart";
+import { FavoriteCategoryPieClient } from "@/components/Admin/Dashboard/FavoriteCategoryPie";
+import { getAdminStats } from "@/lib/actions/admin/dashboard/adminStats";
+import { getMonthlyBooking } from "@/lib/actions/admin/dashboard/getMonthlyBooking";
+import { getFavoriteCategory } from "@/lib/actions/admin/dashboard/getFavoriteCategory";
 import { Bed, CalendarCheck, Car, MapPin, Star, Utensils } from "lucide-react";
-import { getRecentActivities } from "@/lib/actions/dashboard/getRecentActivities";
-import { RecentActivities } from "@/components/Admin/RecentActivities";
-import { getAdminNotifications } from "@/lib/actions/dashboard/getAdminNotifications";
+import { getRecentActivities } from "@/lib/actions/admin/dashboard/getRecentActivities";
+import { RecentActivities } from "@/components/Admin/Dashboard/RecentActivities";
+import { getAdminNotifications } from "@/lib/actions/admin/dashboard/getAdminNotifications";
 
 export default async function AdminDashboardPage() {
   const stats = await getAdminStats();

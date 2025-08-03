@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { AdminSidebar } from "@/components/Admin/Admin-Sidebar";
+import { AdminSidebar } from "@/components/Admin/Dashboard/Admin-Sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
 
