@@ -162,19 +162,19 @@ model Villa {
 }
 
 model Restoran {
-  id        String     @id @default(cuid())
-  nama      String
-  deskripsi String
-  lokasi    String
-  gambarUrl String
-  vendorId  String
-  vendor    User       @relation("RestoranVendor", fields: [vendorId], references: [id])
-  bookings  Booking[]  @relation("RestoranBooking")
-  favorites Favorite[]
-  reviews   Review[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String     @id @default(cuid())
+  nama       String
+  deskripsi  String
+  lokasi     String
+  gambarUrl  String
+  vendorId   String
+  vendor     User       @relation("RestoranVendor", fields: [vendorId], references: [id])
+  bookings   Booking[]  @relation("RestoranBooking")
+  favorites  Favorite[]
+  reviews    Review[]
+  isApproved Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 }
 
 model Booking {
@@ -244,7 +244,8 @@ model Review {
 
   restoranId String?
   restoran   Restoran? @relation(fields: [restoranId], references: [id])
-
+  isVerified Boolean   @default(false)
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
