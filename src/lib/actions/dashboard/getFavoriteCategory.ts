@@ -10,7 +10,7 @@ export async function getFavoriteCategory() {
         _all: true,
       },
     })
-    console.log("HASIL GROUP BY:", counts)
+    // console.log("HASIL GROUP BY:", counts)
 
 
     const formatted = counts.map((item) => ({
