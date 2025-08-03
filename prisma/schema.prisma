@@ -8,8 +8,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-
-
 enum Role {
   ADMIN
   VENDOR
@@ -47,7 +45,7 @@ enum TipeUlasan {
 
 model User {
   id            String       @id @default(cuid())
-  nama          String?
+  name          String?
   email         String       @unique
   emailVerified DateTime?    @map("email_verified")
   image         String?

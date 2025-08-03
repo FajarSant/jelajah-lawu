@@ -17,10 +17,13 @@ export const authConfig = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
         token.role = user.role ?? "PENGUNJUNG";
+      }
+      if (account?.access_token) {
+        token.accessToken = account.access_token;
       }
       return token;
     },
@@ -28,19 +31,21 @@ export const authConfig = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.accessToken = token.accessToken as string;
       }
       return session;
     },
   },
+
   pages: {
-    signIn: "/auth/signin",
+    signIn: "/auth/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;
 
 export const {
-  handlers: { GET, POST },
   auth,
+  handlers: { GET, POST },
   signIn,
   signOut,
 } = NextAuth(authConfig);
