@@ -133,6 +133,11 @@ model JeepTour {
   nama      String
   deskripsi String
   lokasi    String
+  kapasitas Int
+  rute      String
+  gambarUrl String
+  durasi    Int
+  fasilitas String?
   harga     Int
   vendorId  String
   vendor    User       @relation("JeepVendor", fields: [vendorId], references: [id])

@@ -20,16 +20,19 @@ import { Search, Eye, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { ImportExportButtons } from "@/components/Admin/Button/ImportExportButtons";
-import { hapusDestinasi } from "@/lib/actions/admin/destination/destination-actions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+// import { hapusJeepTour } from "@/lib/actions/admin/jeeptour/jeeptour-actions";
+import { ImportExportButtons } from "@/components/Admin/Button/ImportExportButtons";
 
-type Destinasi = {
+type JeepTour = {
   id: string;
   nama: string;
   lokasi: string;
   harga: number;
   deskripsi: string;
+  kapasitas: number;
+  durasi: number;
+  rute: string;
   gambarUrl: string;
   vendorId: string;
   vendorNama: string;
@@ -37,10 +40,10 @@ type Destinasi = {
 };
 
 type Props = {
-  destinasi: Destinasi[];
+  jeepTours: JeepTour[];
 };
 
-export function DestinationTable({ destinasi }: Props) {
+export function JeepTourTable({ jeepTours }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -48,37 +51,8 @@ export function DestinationTable({ destinasi }: Props) {
     setSearchTerm(e.target.value);
   };
 
-  const handleDelete = async (id: string) => {
-    const result = await Swal.fire({
-      title: "Yakin ingin menghapus?",
-      text: "Tindakan ini tidak bisa dibatalkan!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Ya, hapus!",
-      cancelButtonColor: "#d33",
-      cancelButtonText: "Batal",
-    });
-
-    if (result.isConfirmed) {
-      setDeletingId(id);
-      try {
-        const res = await hapusDestinasi(id);
-        if (res.success) {
-          await Swal.fire("Berhasil!", res.success, "success");
-          window.location.reload();
-        } else {
-          await Swal.fire("Gagal!", "Terjadi kesalahan saat menghapus.", "error");
-        }
-      } catch {
-        await Swal.fire("Error!", "Gagal menghapus destinasi.", "error");
-      } finally {
-        setDeletingId(null);
-      }
-    }
-  };
-
-  const filtered = destinasi.filter((d) =>
-    d.nama.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = jeepTours.filter((jt) =>
+    jt.nama.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -91,15 +65,15 @@ export function DestinationTable({ destinasi }: Props) {
               <Input
                 value={searchTerm}
                 onChange={handleSearch}
-                placeholder="Cari destinasi..."
+                placeholder="Cari jeep tour..."
                 className="pl-9"
               />
             </div>
 
-            <ImportExportButtons data={destinasi} />
+            <ImportExportButtons data={jeepTours} />
 
-            <Link href="/admin/destination/create">
-              <Button className="whitespace-nowrap">+ Tambah Destinasi</Button>
+            <Link href="/admin/jeeptour/create">
+              <Button className="whitespace-nowrap">+ Tambah Jeep Tour</Button>
             </Link>
           </div>
         </div>
@@ -112,6 +86,8 @@ export function DestinationTable({ destinasi }: Props) {
               <TableHead>Nama</TableHead>
               <TableHead>Lokasi</TableHead>
               <TableHead>Harga</TableHead>
+              <TableHead>Kapasitas</TableHead>
+              <TableHead>Durasi</TableHead>
               <TableHead>Vendor</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="text-center">Aksi</TableHead>
@@ -123,6 +99,8 @@ export function DestinationTable({ destinasi }: Props) {
                 <TableCell className="font-medium">{item.nama}</TableCell>
                 <TableCell>{item.lokasi}</TableCell>
                 <TableCell>Rp{item.harga.toLocaleString()}</TableCell>
+                <TableCell>{item.kapasitas}</TableCell>
+                <TableCell>{item.durasi} jam</TableCell>
                 <TableCell>{item.vendorNama}</TableCell>
                 <TableCell>
                   {new Date(item.createdAt).toLocaleDateString("id-ID", {
@@ -135,7 +113,7 @@ export function DestinationTable({ destinasi }: Props) {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Link href={`/admin/destinasi/${item.id}`}>
+                        <Link href={`/admin/jeeptour/${item.id}`}>
                           <Button size="icon" variant="outline">
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -146,7 +124,7 @@ export function DestinationTable({ destinasi }: Props) {
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Link href={`/admin/destinasi/${item.id}/edit`}>
+                        <Link href={`/admin/jeeptour/${item.id}/edit`}>
                           <Button size="icon" variant="secondary">
                             <Pencil className="w-4 h-4" />
                           </Button>
@@ -160,7 +138,7 @@ export function DestinationTable({ destinasi }: Props) {
                         <Button
                           size="icon"
                           variant="destructive"
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => console.log("hapus", item.id)}
                           disabled={deletingId === item.id}
                         >
                           {deletingId === item.id ? (
@@ -181,7 +159,7 @@ export function DestinationTable({ destinasi }: Props) {
 
         {filtered.length === 0 && (
           <div className="text-center text-sm text-muted-foreground py-6">
-            Tidak ada data destinasi.
+            Tidak ada data jeep tour.
           </div>
         )}
       </CardContent>

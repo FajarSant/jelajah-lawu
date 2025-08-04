@@ -65,7 +65,7 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-muted rounded-xl shadow p-4">
           <h2 className="text-lg font-semibold mb-4">Aktivitas Terbaru</h2>
-          <RecentActivities bookings={bookings} reviews={reviews} />
+          <RecentActivities bookings={bookings} reviews={reviews}  />
         </div>
         <div className="bg-white dark:bg-muted rounded-xl shadow p-4">
           <h2 className="text-lg font-semibold mb-4">Notifikasi Admin</h2>
