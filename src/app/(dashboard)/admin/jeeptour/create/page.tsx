@@ -22,8 +22,9 @@ import {
   tambahJeepTour,
   getAllVendors,
 } from "@/lib/actions/admin/jeep/jeep-action";
+import { Textarea } from "@/components/ui/textarea";
 
-// Validasi form
+// Zod Schema
 const formSchema = z.object({
   nama: z.string().min(2, { message: "Nama wajib diisi" }),
   lokasi: z.string().min(2, { message: "Lokasi wajib diisi" }),
@@ -33,13 +34,21 @@ const formSchema = z.object({
   deskripsi: z.string().min(10, { message: "Deskripsi minimal 10 karakter" }),
   gambarUrl: z.string().url({ message: "URL gambar tidak valid" }),
   vendorId: z.string().min(1, { message: "Vendor wajib dipilih" }),
+  kapasitas: z.string().refine((val) => Number(val) > 0, {
+    message: "Kapasitas harus lebih dari 0",
+  }),
+  rute: z.string().min(5, { message: "Rute wajib diisi" }),
+  durasi: z.string().refine((val) => Number(val) > 0, {
+    message: "Durasi minimal 1 jam",
+  }),
+  fasilitas: z.string().optional(),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
-
-type Vendor = {
-  id: string;
-  name: string;
+type Vendor = { id: string; name: string };
+type JeepTourResponse = {
+  success?: string;
+  error?: Record<string, string[]> | string;
 };
 
 export default function CreateJeepTourPage() {
@@ -54,16 +63,14 @@ export default function CreateJeepTourPage() {
     formState: { errors },
   } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      vendorId: "",
-    },
+    defaultValues: { vendorId: "" },
   });
 
   useEffect(() => {
     async function fetchVendors() {
       try {
         const data = await getAllVendors();
-        const formatted = data.map((vendor: { id: string; name: string }) => ({
+        const formatted = data.map((vendor: Vendor) => ({
           id: vendor.id,
           name: vendor.name ?? "Tanpa Nama",
         }));
@@ -73,7 +80,6 @@ export default function CreateJeepTourPage() {
         console.error(error);
       }
     }
-
     fetchVendors();
   }, []);
 
@@ -81,148 +87,171 @@ export default function CreateJeepTourPage() {
     setIsSubmitting(true);
 
     const formData = new FormData();
-    formData.append("nama", data.nama);
-    formData.append("lokasi", data.lokasi);
-    formData.append("harga", String(Number(data.harga)));
-    formData.append("deskripsi", data.deskripsi);
-    formData.append("gambarUrl", data.gambarUrl);
-    formData.append("vendorId", data.vendorId);
+    for (const [key, value] of Object.entries(data)) {
+      formData.append(key, value);
+    }
 
-    const res = await tambahJeepTour(formData);
+    const res: JeepTourResponse = await tambahJeepTour(formData);
 
-   
- if (res.success) {
+    if (res.success) {
       await Swal.fire({
         icon: "success",
         title: "Berhasil",
         text: res.success,
-        confirmButtonText: "OK",
       });
-
-      router.push("/admin/destination");
+      router.push("/admin/jeeptour");
     } else {
-      // Gabungkan pesan error dari object menjadi satu string
-      const errorMessages = Object.values(res.error || {})
-        .flat()
-        .join(", ");
-
+      const errorMessages =
+        typeof res.error === "string"
+          ? res.error
+          : Object.values(res.error || {})
+              .flat()
+              .join(", ");
       Swal.fire({
         icon: "error",
         title: "Gagal",
-        text: errorMessages || "Terjadi kesalahan saat menambahkan destinasi",
+        text: errorMessages || "Terjadi kesalahan saat menambahkan Jeep Tour",
       });
-
       console.error(res.error);
     }
-
 
     setIsSubmitting(false);
   };
 
   return (
-    <Card className="mx-auto mt-10 shadow-lg rounded-2xl">
+    <Card className="mx-auto mt-10 max-w-5xl shadow-xl rounded-2xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-semibold text-center text-gray-700">
+        <CardTitle className="text-3xl font-bold text-center text-gray-800">
           Tambah Jeep Tour Baru
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Nama */}
-            <div>
-              <Label htmlFor="nama">Nama Jeep Tour</Label>
+            <FormGroup
+              label="Nama Jeep Tour"
+              id="nama"
+              error={errors.nama?.message}
+            >
               <Input id="nama" {...register("nama")} />
-              {errors.nama && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.nama.message}
-                </p>
-              )}
-            </div>
+            </FormGroup>
 
             {/* Lokasi */}
-            <div>
-              <Label htmlFor="lokasi">Lokasi</Label>
+            <FormGroup
+              label="Lokasi"
+              id="lokasi"
+              error={errors.lokasi?.message}
+            >
               <Input id="lokasi" {...register("lokasi")} />
-              {errors.lokasi && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.lokasi.message}
-                </p>
-              )}
-            </div>
+            </FormGroup>
 
             {/* Harga */}
-            <div>
-              <Label htmlFor="harga">Harga</Label>
+            <FormGroup label="Harga" id="harga" error={errors.harga?.message}>
               <Input
                 id="harga"
                 type="number"
                 step="1000"
                 {...register("harga")}
               />
-              {errors.harga && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.harga.message}
-                </p>
-              )}
-            </div>
+            </FormGroup>
 
-            {/* Gambar */}
-            <div>
-              <Label htmlFor="gambarUrl">URL Gambar</Label>
+            {/* URL Gambar */}
+            <FormGroup
+              label="URL Gambar"
+              id="gambarUrl"
+              error={errors.gambarUrl?.message}
+            >
               <Input id="gambarUrl" {...register("gambarUrl")} />
-              {errors.gambarUrl && (
+            </FormGroup>
+
+            {/* Kapasitas */}
+            <FormGroup
+              label="Kapasitas"
+              id="kapasitas"
+              error={errors.kapasitas?.message}
+            >
+              <Input id="kapasitas" type="number" {...register("kapasitas")} />
+            </FormGroup>
+
+            {/* Durasi */}
+            <FormGroup
+              label="Durasi (jam)"
+              id="durasi"
+              error={errors.durasi?.message}
+            >
+              <Input id="durasi" type="number" {...register("durasi")} />
+            </FormGroup>
+
+            {/* Rute */}
+            <FormGroup
+              label="Rute"
+              id="rute"
+              error={errors.rute?.message}
+              className="md:col-span-2"
+            >
+              <Input id="rute" {...register("rute")} />
+            </FormGroup>
+
+            {/* Deskripsi */}
+            <div className="md:col-span-2">
+              <Label htmlFor="deskripsi">Deskripsi</Label>
+              <Textarea
+                id="deskripsi"
+                {...register("deskripsi")}
+                rows={4}
+                placeholder="Tuliskan deskripsi jeep tour secara lengkap"
+              />
+              {errors.deskripsi && (
                 <p className="text-sm text-red-500 mt-1">
-                  {errors.gambarUrl.message}
+                  {errors.deskripsi.message}
+                </p>
+              )}
+            </div>
+
+            {/* Fasilitas */}
+            <FormGroup
+              label="Fasilitas (Opsional)"
+              id="fasilitas"
+              error={errors.fasilitas?.message}
+              className="md:col-span-2"
+            >
+              <Input id="fasilitas" {...register("fasilitas")} />
+            </FormGroup>
+
+            {/* Vendor */}
+            <div className="md:col-span-2">
+              <Label htmlFor="vendorId" className="mb-1 block">
+                Vendor
+              </Label>
+              <Controller
+                name="vendorId"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih Vendor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vendors.map((vendor) => (
+                        <SelectItem key={vendor.id} value={vendor.id}>
+                          {vendor.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.vendorId && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.vendorId.message}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Deskripsi */}
-          <div>
-            <Label htmlFor="deskripsi">Deskripsi</Label>
-            <Input id="deskripsi" {...register("deskripsi")} />
-            {errors.deskripsi && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.deskripsi.message}
-              </p>
-            )}
-          </div>
-
-          {/* Vendor */}
-          <div>
-            <Label htmlFor="vendorId">Vendor</Label>
-            <Controller
-              name="vendorId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih Vendor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {vendors.map((vendor) => (
-                      <SelectItem key={vendor.id} value={vendor.id}>
-                        {vendor.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.vendorId && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.vendorId.message}
-              </p>
-            )}
-          </div>
-
-          {/* Submit */}
-          <div className="pt-4 text-end">
+          {/* Submit Button */}
+          <div className="flex justify-end pt-6">
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -234,5 +263,30 @@ export default function CreateJeepTourPage() {
         </form>
       </CardContent>
     </Card>
+  );
+}
+
+// Komponen kecil untuk label + input + error
+function FormGroup({
+  label,
+  id,
+  children,
+  error,
+  className = "",
+}: {
+  label: string;
+  id: string;
+  children: React.ReactNode;
+  error?: string;
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      <Label htmlFor={id} className="mb-1 block">
+        {label}
+      </Label>
+      {children}
+      {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+    </div>
   );
 }
