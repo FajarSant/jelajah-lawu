@@ -155,6 +155,8 @@ model Villa {
   deskripsi String
   lokasi    String
   gambarUrl String
+  kapasitas Int
+  fasilitas String?
   harga     Int
   vendorId  String
   vendor    User       @relation("VillaVendor", fields: [vendorId], references: [id])
