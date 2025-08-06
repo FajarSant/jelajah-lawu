@@ -19,10 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Search, Eye, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import Swal from "sweetalert2";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-// import { hapusJeepTour } from "@/lib/actions/admin/jeeptour/jeeptour-actions";
-import { ImportExportButtons } from "@/components/Admin/Button/ImportExportButtons";
+import { ImportExportJeepButtons } from "../Button/ImportExportButtonJeep";
 
 type JeepTour = {
   id: string;
@@ -70,7 +68,7 @@ export function JeepTourTable({ jeepTours }: Props) {
               />
             </div>
 
-            <ImportExportButtons data={jeepTours} />
+            <ImportExportJeepButtons data={jeepTours} />
 
             <Link href="/admin/jeeptour/create">
               <Button className="whitespace-nowrap">+ Tambah Jeep Tour</Button>

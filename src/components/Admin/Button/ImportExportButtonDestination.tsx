@@ -18,7 +18,7 @@ type DestinationExportData = {
 
 type ImportExportButtonsProps = {
   data: DestinationExportData[];
-  disabled?: boolean; // ✅ tambahkan prop optional
+  disabled?: boolean; 
 };
 
 export function ImportExportButtons({ data, disabled = false }: ImportExportButtonsProps) {

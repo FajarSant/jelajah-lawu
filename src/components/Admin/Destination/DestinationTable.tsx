@@ -20,7 +20,7 @@ import { Search, Eye, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { ImportExportButtons } from "@/components/Admin/Button/ImportExportButtons";
+import { ImportExportButtons } from "@/components/Admin/Button/ImportExportButtonDestination";
 import { hapusDestinasi } from "@/lib/actions/admin/destination/destination-actions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
