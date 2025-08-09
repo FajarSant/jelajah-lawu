@@ -10,7 +10,9 @@ const RestoranSchema = z.object({
   deskripsi: z.string().min(10, { message: "Deskripsi minimal 10 karakter" }),
   lokasi: z.string().min(2, { message: "Lokasi wajib diisi" }),
   fasilitas: z.string().optional(),
-  hargaRata: z.coerce.number().min(0, { message: "Harga rata-rata harus angka positif" }),
+  hargaRata: z.coerce
+    .number()
+    .min(0, { message: "Harga rata-rata harus angka positif" }),
   jenisMakanan: z.string().optional(),
   jamBuka: z.string().optional(),
   jamTutup: z.string().optional(),
@@ -181,7 +183,7 @@ export async function getRestoranDashboardData() {
     },
   });
 
-  const restoran = restoranRaw.map((r) => ({
+  const restorant = restoranRaw.map((r) => ({
     ...r,
     vendorNama: r.vendor?.name ?? "-",
   }));
@@ -189,13 +191,13 @@ export async function getRestoranDashboardData() {
   return {
     statistik: {
       totalRestoran,
-      rataRataHarga: rataRataHarga._avg.hargaRata ?? 0,
+      rataRataHargaMenu: rataRataHarga._avg.hargaRata ?? 0, // ✅ sudah rename
       totalBooking,
       totalPendapatan: totalPendapatan._sum.totalHarga ?? 0,
     },
+    restorant, // ✅ plural supaya cocok dengan <RestoranTable restorans=... />
     restoranTerbaru,
     ulasanTerbaru,
-    restoran,
   };
 }
 
