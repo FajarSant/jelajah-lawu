@@ -1,4 +1,3 @@
-// lib/middleware/auth.ts
 import { auth } from "@/lib/auth";
 
 export async function requireAuth() {

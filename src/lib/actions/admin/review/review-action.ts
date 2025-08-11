@@ -2,18 +2,15 @@
 
 import { prisma } from "@/lib/prisma";
 
-// Statistik Review
 export async function getReviewDashboardStats() {
   try {
     const totalReview = await prisma.review.count();
 
-    // Hitung per kategori berdasarkan enum tipe
     const totalDestinasi = await prisma.review.count({ where: { tipe: "DESTINASI" } });
     const totalJeep = await prisma.review.count({ where: { tipe: "JEEP" } });
     const totalVilla = await prisma.review.count({ where: { tipe: "VILLA" } });
     const totalRestoran = await prisma.review.count({ where: { tipe: "RESTORAN" } });
 
-    // Rata-rata nilai
     const avgNilai = await prisma.review.aggregate({
       _avg: { nilai: true },
     });
@@ -37,7 +34,6 @@ export async function getReviewDashboardStats() {
   }
 }
 
-// Review Terbaru
 export async function getLatestReviews(limit: number = 10) {
   try {
     const reviews = await prisma.review.findMany({

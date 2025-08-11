@@ -191,11 +191,11 @@ export async function getRestoranDashboardData() {
   return {
     statistik: {
       totalRestoran,
-      rataRataHargaMenu: rataRataHarga._avg.hargaRata ?? 0, // ✅ sudah rename
+      rataRataHargaMenu: rataRataHarga._avg.hargaRata ?? 0, 
       totalBooking,
       totalPendapatan: totalPendapatan._sum.totalHarga ?? 0,
     },
-    restorant, // ✅ plural supaya cocok dengan <RestoranTable restorans=... />
+    restorant,
     restoranTerbaru,
     ulasanTerbaru,
   };

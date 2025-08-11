@@ -24,7 +24,6 @@ import {
 } from "@/lib/actions/admin/villa/villa.actions";
 import { Textarea } from "@/components/ui/textarea";
 
-// Zod Schema (sesuai backend)
 const formSchema = z.object({
   nama: z.string().min(2, { message: "Nama wajib diisi" }),
   lokasi: z.string().min(2, { message: "Lokasi wajib diisi" }),
@@ -62,7 +61,6 @@ export default function CreateVillaPage() {
     defaultValues: { vendorId: "" },
   });
 
-  // Ambil data vendor
   useEffect(() => {
     async function fetchVendors() {
       try {
@@ -246,7 +244,6 @@ export default function CreateVillaPage() {
   );
 }
 
-// Komponen kecil untuk label + input + error
 function FormGroup({
   label,
   id,
