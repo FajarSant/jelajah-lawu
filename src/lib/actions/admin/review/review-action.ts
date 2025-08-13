@@ -1,9 +1,29 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth"; // Pastikan sesuai path auth.ts
+
+// Role yang diizinkan
+const ALLOWED_ROLES = ["ADMIN", "VENDOR"] as const;
+
+async function requireRole() {
+  const session = await auth();
+
+  if (!session) {
+    throw new Error("Unauthorized"); // Belum login
+  }
+
+  if (!ALLOWED_ROLES.includes(session.user.role as typeof ALLOWED_ROLES[number])) {
+    throw new Error("Forbidden"); // Role tidak diizinkan
+  }
+
+  return session;
+}
 
 export async function getReviewDashboardStats() {
   try {
+    await requireRole(); // 🔒 Cek role sebelum query
+
     const totalReview = await prisma.review.count();
 
     const totalDestinasi = await prisma.review.count({ where: { tipe: "DESTINASI" } });
@@ -36,11 +56,13 @@ export async function getReviewDashboardStats() {
 
 export async function getLatestReviews(limit: number = 10) {
   try {
+    await requireRole(); // 🔒 Cek role sebelum query
+
     const reviews = await prisma.review.findMany({
       orderBy: { createdAt: "desc" },
       take: limit,
       include: {
-        user: { select: { name: true } },
+        user: { select: { name: true } }, // Tidak expose email, id, dll.
         destinasi: { select: { nama: true } },
         jeepTour: { select: { nama: true } },
         villa: { select: { nama: true } },

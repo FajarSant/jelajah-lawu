@@ -1,27 +1,55 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 export async function getBookingDashboardData() {
+  // 🔹 1. Cek session
+  const session = await auth();
+  if (!session || !session.user) {
+    throw new Error("Unauthorized: Anda harus login untuk mengakses data ini.");
+  }
+
+  // 🔹 2. Batasi role (ADMIN & VENDOR saja)
+  if (!["ADMIN", "VENDOR"].includes(session.user.role)) {
+    throw new Error("Forbidden: Anda tidak memiliki izin untuk mengakses data ini.");
+  }
+
+  // 🔹 3. Query statistik booking
   const totalBooking = await prisma.booking.count();
 
   const totalPerKategori = {
-    destinasi: await prisma.booking.count({ where: { destinasiId: { not: null } } }),
-    jeep: await prisma.booking.count({ where: { jeepTourId: { not: null } } }),
-    villa: await prisma.booking.count({ where: { villaId: { not: null } } }),
-    restoran: await prisma.booking.count({ where: { restoranId: { not: null } } }),
+    destinasi: await prisma.booking.count({
+      where: { destinasiId: { not: null } },
+    }),
+    jeep: await prisma.booking.count({
+      where: { jeepTourId: { not: null } },
+    }),
+    villa: await prisma.booking.count({
+      where: { villaId: { not: null } },
+    }),
+    restoran: await prisma.booking.count({
+      where: { restoranId: { not: null } },
+    }),
   };
 
   const totalPerStatus = {
-    diproses: await prisma.booking.count({ where: { status: "DIPROSES" } }),
-    selesai: await prisma.booking.count({ where: { status: "SELESAI" } }),
-    dibatalkan: await prisma.booking.count({ where: { status: "DIBATALKAN" } }),
+    diproses: await prisma.booking.count({
+      where: { status: "DIPROSES" },
+    }),
+    selesai: await prisma.booking.count({
+      where: { status: "SELESAI" },
+    }),
+    dibatalkan: await prisma.booking.count({
+      where: { status: "DIBATALKAN" },
+    }),
   };
 
   const totalPendapatan = await prisma.booking.aggregate({
     _sum: { totalHarga: true },
   });
 
+  // 🔹 4. Latest bookings
   const latestBookings = await prisma.booking.findMany({
     orderBy: { tanggal: "desc" },
     take: 10,

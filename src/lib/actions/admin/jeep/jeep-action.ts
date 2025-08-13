@@ -3,18 +3,15 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { auth } from "@/lib/auth"; 
 
 // ─── SCHEMA VALIDASI ───────────────────────────────────────────────────────────
 const JeepSchema = z.object({
   nama: z.string().min(2, { message: "Nama wajib diisi" }),
   lokasi: z.string().min(2, { message: "Lokasi wajib diisi" }),
-  harga: z.coerce
-    .number()
-    .min(0, { message: "Harga harus berupa angka positif" }),
+  harga: z.coerce.number().min(0, { message: "Harga harus berupa angka positif" }),
   deskripsi: z.string().min(10, { message: "Deskripsi minimal 10 karakter" }),
-  kapasitas: z.coerce
-    .number()
-    .min(1, { message: "Kapasitas harus lebih dari 0" }),
+  kapasitas: z.coerce.number().min(1, { message: "Kapasitas harus lebih dari 0" }),
   rute: z.string().min(5, { message: "Rute wajib diisi" }),
   durasi: z.coerce.number().min(1, { message: "Durasi minimal 1 jam" }),
   gambarUrl: z.string().url({ message: "URL gambar tidak valid" }),
@@ -22,8 +19,22 @@ const JeepSchema = z.object({
   fasilitas: z.string().optional(),
 });
 
+// ─── FUNGSI CEK ROLE ───────────────────────────────────────────────────────────
+async function requireRole(allowedRoles: string[]) {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+  if (!allowedRoles.includes(session.user.role)) {
+    throw new Error("Forbidden");
+  }
+  return session;
+}
+
 // ─── CREATE ────────────────────────────────────────────────────────────────────
 export async function tambahJeepTour(form: FormData) {
+  await requireRole(["ADMIN", "VENDOR"]);
+
   const formData = {
     nama: form.get("nama"),
     lokasi: form.get("lokasi"),
@@ -38,16 +49,13 @@ export async function tambahJeepTour(form: FormData) {
   };
 
   const parsed = JeepSchema.safeParse(formData);
-
   if (!parsed.success) {
     return { error: parsed.error.flatten().fieldErrors };
   }
 
-  const data = parsed.data;
-
-  await prisma.jeepTour.create({ data });
+  await prisma.jeepTour.create({ data: parsed.data });
   revalidatePath("/admin/jeep");
-  return { success: 'JeePTour berhasil ditambahkan' };
+  return { success: "JeepTour berhasil ditambahkan" };
 }
 
 // ─── GET ALL ────────────────────────────────────────────────────────────────────
@@ -55,17 +63,9 @@ export async function getAllJeepTour() {
   const data = await prisma.jeepTour.findMany({
     include: {
       vendor: { select: { name: true } },
-      _count: {
-        select: {
-          bookings: true,
-          reviews: true,
-          favorites: true,
-        },
-      },
+      _count: { select: { bookings: true, reviews: true, favorites: true } },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 
   return data.map((j) => ({
@@ -90,6 +90,8 @@ export async function getJeepTourById(id: string) {
 
 // ─── UPDATE ─────────────────────────────────────────────────────────────────────
 export async function updateJeepTour(id: string, form: FormData) {
+  await requireRole(["ADMIN", "VENDOR"]);
+
   try {
     const formData = {
       nama: form.get("nama"),
@@ -105,14 +107,11 @@ export async function updateJeepTour(id: string, form: FormData) {
     };
 
     const parsed = JeepSchema.safeParse(formData);
-
     if (!parsed.success) {
       return { error: parsed.error.flatten().fieldErrors };
     }
 
-    const data = parsed.data;
-
-    await prisma.jeepTour.update({ where: { id }, data });
+    await prisma.jeepTour.update({ where: { id }, data: parsed.data });
     revalidatePath("/admin/jeep");
     return { success: true };
   } catch (error) {
@@ -123,6 +122,8 @@ export async function updateJeepTour(id: string, form: FormData) {
 
 // ─── DELETE ─────────────────────────────────────────────────────────────────────
 export async function hapusJeepTour(id: string) {
+  await requireRole(["ADMIN", "VENDOR"]);
+
   try {
     await prisma.jeepTour.delete({ where: { id } });
     revalidatePath("/admin/jeep");
@@ -135,6 +136,8 @@ export async function hapusJeepTour(id: string) {
 
 // ─── DASHBOARD DATA ─────────────────────────────────────────────────────────────
 export async function getJeepDashboardData() {
+  await requireRole(["ADMIN", "VENDOR"]);
+
   const [totalJeepTour, avgHarga, totalBooking, totalPendapatan] =
     await Promise.all([
       prisma.jeepTour.count(),
@@ -149,16 +152,11 @@ export async function getJeepDashboardData() {
   const daftarJeepTour = await prisma.jeepTour.findMany({
     take: 10,
     orderBy: { createdAt: "desc" },
-    include: {
-      vendor: { select: { name: true } },
-    },
+    include: { vendor: { select: { name: true } } },
   });
 
   const daftarUlasan = await prisma.review.findMany({
-    where: {
-      jeepTourId: { not: null },
-      tipe: "JEEP",
-    },
+    where: { jeepTourId: { not: null }, tipe: "JEEP" },
     take: 10,
     orderBy: { createdAt: "desc" },
     include: {
@@ -201,18 +199,12 @@ export async function getJeepDashboardData() {
 
 // ─── GET ALL VENDOR ─────────────────────────────────────────────────────────────
 export async function getAllVendors() {
+  await requireRole(["ADMIN", "VENDOR"]);
+
   const vendors = await prisma.user.findMany({
-    where: {
-      role: "VENDOR",
-      name: { not: null },
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-    orderBy: {
-      name: "asc",
-    },
+    where: { role: "VENDOR", name: { not: null } },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
   });
 
   return vendors.map((v) => ({
