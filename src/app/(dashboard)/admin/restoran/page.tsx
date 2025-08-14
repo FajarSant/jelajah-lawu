@@ -7,11 +7,11 @@ export default async function RestoranDashboardPage() {
   const data = await getRestoranDashboardData();
 
   return (
-    <div className="space-y-6">
+    <main className="px-4 py-8 space-y-6">
       <h1 className="text-2xl font-semibold">Dashboard Restoran</h1>
 
       <RestoranDashboardStatsCard statistik={data.statistik} />
       <RestoranTable restorans={data.restorant} />
-    </div>
+    </main>
   );
 }

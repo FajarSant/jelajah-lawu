@@ -6,12 +6,12 @@ export default async function VillaDashboardPage() {
   const data = await getVillaDashboardData();
 
   return (
-    <div className="space-y-6">
+    <main className="px-4 py-8 space-y-6">
       <h1 className="text-2xl font-semibold">Dashboard Villa</h1>
 
       <VillaDashboardStatsCard statistik={data.statistik} />
 
       <VillaTable villas={data.villas} />
-    </div>
+    </main>
   );
 }

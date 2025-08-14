@@ -60,7 +60,7 @@ export function AdminSidebar() {
   const user = session?.user
 
   return (
-    <Sidebar className="min-h-screen bg-white dark:bg-gray-950 shadow-sm">
+    <Sidebar className="min-h-screen bg-gradient-to-b from-primary/10 via-white/80 to-white dark:from-gray-900 dark:via-gray-950 dark:to-black backdrop-blur-lg shadow-lg border-r border-gray-200 dark:border-gray-800 transition-all">
       <SidebarContent className="p-4">
         {/* === USER INFO === */}
         {status === "loading" ? (
@@ -73,23 +73,23 @@ export function AdminSidebar() {
             </div>
           </div>
         ) : user ? (
-          <div className="flex items-center gap-3 mb-6 border-b pb-4 mt-2">
-            <Avatar className="w-10 h-10 border">
+          <div className="flex items-center gap-3 mb-6 border-b border-gray-200 dark:border-gray-800 pb-4 mt-2">
+            <Avatar className="w-12 h-12 border-2 border-primary/50 shadow-md hover:scale-105 transition-transform">
               <AvatarImage src={user.image || ""} alt={user.name || "User"} />
-              <AvatarFallback>
+              <AvatarFallback className="bg-primary/20 text-primary font-bold">
                 {user?.name?.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col gap-0.5">
-              <div className="font-medium text-sm text-gray-900 dark:text-white truncate max-w-[180px]">
+              <div className="font-semibold text-sm text-gray-900 dark:text-white truncate max-w-[180px]">
                 {user.name}
               </div>
-              <div className="text-xs text-muted-foreground truncate max-w-[180px]">
+              <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[180px]">
                 {user.email}
               </div>
               {user.role === "ADMIN" && (
-                <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md w-fit mt-1">
-                  Admin
+                <span className="text-[10px] tracking-wide font-semibold text-primary bg-primary/20 px-2 py-0.5 rounded-full w-fit mt-1 shadow-sm">
+                  ● Admin
                 </span>
               )}
             </div>
@@ -124,7 +124,9 @@ export function AdminSidebar() {
         {user?.role === "ADMIN" &&
           adminMenu.map((section) => (
             <SidebarGroup key={section.group}>
-              <SidebarGroupLabel>{section.group}</SidebarGroupLabel>
+              <SidebarGroupLabel className="text-[11px] uppercase tracking-wide font-medium text-gray-500 dark:text-gray-400 mb-1">
+                {section.group}
+              </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {section.items.map((item) => {
@@ -134,13 +136,18 @@ export function AdminSidebar() {
                         <SidebarMenuButton asChild>
                           <Link
                             href={item.url}
-                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                              isActive
-                                ? "bg-muted text-primary font-semibold"
-                                : "text-muted-foreground hover:bg-muted"
-                            }`}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 group
+                              ${
+                                isActive
+                                  ? "bg-primary text-white font-semibold shadow-md scale-[1.02]"
+                                  : "text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary"
+                              }`}
                           >
-                            <item.icon className="w-4 h-4" />
+                            <item.icon
+                              className={`w-4 h-4 transition-colors duration-200 group-hover:text-primary ${
+                                isActive ? "text-white" : "text-gray-500"
+                              }`}
+                            />
                             <span>{item.title}</span>
                           </Link>
                         </SidebarMenuButton>

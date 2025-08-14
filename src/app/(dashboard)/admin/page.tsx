@@ -22,7 +22,7 @@ export default async function AdminDashboardPage() {
   }
 
   return (
-    <div className="p-6 space-y-8">
+    <main className="px-4 py-8 space-y-6">
       {/* Kartu statistik */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <AdminCard
@@ -72,6 +72,6 @@ export default async function AdminDashboardPage() {
           <AdminNotifications initialNotifications={notifications} />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

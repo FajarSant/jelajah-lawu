@@ -19,7 +19,7 @@ export default async function ReviewDashboardPage() {
     })) ?? [];
 
   return (
-    <div className="space-y-6">
+    <main className="px-4 py-8 space-y-6">
       <h1 className="text-2xl font-semibold">Dashboard Review</h1>
 
       <ReviewDashboardStatsCard statistik={stats.data ?? defaultStats} />
@@ -28,6 +28,6 @@ export default async function ReviewDashboardPage() {
         <h2 className="text-lg font-semibold mb-4">Review Terbaru</h2>
         <ReviewTable reviews={mappedReviews} />
       </div>
-    </div>
+    </main>
   );
 }

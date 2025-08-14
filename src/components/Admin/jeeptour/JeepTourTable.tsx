@@ -54,7 +54,7 @@ export function JeepTourTable({ jeepTours }: Props) {
   );
 
   return (
-    <Card>
+    <Card className="shadow-sm border rounded-xl">
       <CardHeader className="pb-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
@@ -64,23 +64,25 @@ export function JeepTourTable({ jeepTours }: Props) {
                 value={searchTerm}
                 onChange={handleSearch}
                 placeholder="Cari jeep tour..."
-                className="pl-9"
+                className="pl-9 rounded-lg border-muted focus-visible:ring-2 focus-visible:ring-primary/50"
               />
             </div>
 
             <ImportExportJeepButtons data={jeepTours} />
 
             <Link href="/admin/jeeptour/create">
-              <Button className="whitespace-nowrap">+ Tambah Jeep Tour</Button>
+              <Button className="whitespace-nowrap shadow-sm transition-all hover:shadow-md">
+                + Tambah Jeep Tour
+              </Button>
             </Link>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="p-0 overflow-x-auto">
-        <Table>
+        <Table className="min-w-full rounded-lg overflow-hidden">
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-muted/50">
               <TableHead>Nama</TableHead>
               <TableHead>Lokasi</TableHead>
               <TableHead>Harga</TableHead>
@@ -92,14 +94,21 @@ export function JeepTourTable({ jeepTours }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.nama}</TableCell>
-                <TableCell>{item.lokasi}</TableCell>
+            {filtered.map((item, index) => (
+              <TableRow
+                key={item.id}
+                className={`transition-colors hover:bg-muted/30 ${
+                  index % 2 === 0 ? "bg-background" : "bg-muted/10"
+                }`}
+              >
+                <TableCell className="font-medium truncate max-w-[150px]">
+                  {item.nama}
+                </TableCell>
+                <TableCell className="truncate max-w-[120px]">{item.lokasi}</TableCell>
                 <TableCell>Rp{item.harga.toLocaleString()}</TableCell>
                 <TableCell>{item.kapasitas}</TableCell>
                 <TableCell>{item.durasi} jam</TableCell>
-                <TableCell>{item.vendorNama}</TableCell>
+                <TableCell className="truncate max-w-[120px]">{item.vendorNama}</TableCell>
                 <TableCell>
                   {new Date(item.createdAt).toLocaleDateString("id-ID", {
                     day: "2-digit",
@@ -112,7 +121,7 @@ export function JeepTourTable({ jeepTours }: Props) {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Link href={`/admin/jeeptour/${item.id}`}>
-                          <Button size="icon" variant="outline">
+                          <Button size="icon" variant="outline" className="transition-all hover:scale-105">
                             <Eye className="w-4 h-4" />
                           </Button>
                         </Link>
@@ -123,7 +132,7 @@ export function JeepTourTable({ jeepTours }: Props) {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Link href={`/admin/jeeptour/${item.id}/edit`}>
-                          <Button size="icon" variant="secondary">
+                          <Button size="icon" variant="secondary" className="transition-all hover:scale-105">
                             <Pencil className="w-4 h-4" />
                           </Button>
                         </Link>
@@ -138,6 +147,7 @@ export function JeepTourTable({ jeepTours }: Props) {
                           variant="destructive"
                           onClick={() => console.log("hapus", item.id)}
                           disabled={deletingId === item.id}
+                          className="transition-all hover:scale-105"
                         >
                           {deletingId === item.id ? (
                             <span className="text-xs">...</span>

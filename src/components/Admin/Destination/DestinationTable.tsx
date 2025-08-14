@@ -1,11 +1,6 @@
-'use client';
+"use client";
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableHeader,
@@ -16,13 +11,18 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Eye, Pencil, Trash2 } from "lucide-react";
+import { Search, Eye, Pencil, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { ImportExportButtons } from "@/components/Admin/Button/ImportExportButtonDestination";
 import { hapusDestinasi } from "@/lib/actions/admin/destination/destination-actions";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Destinasi = {
   id: string;
@@ -64,10 +64,14 @@ export function DestinationTable({ destinasi }: Props) {
       try {
         const res = await hapusDestinasi(id);
         if (res.success) {
-          await Swal.fire("Berhasil!", res.success, "success");
+          await Swal.fire("Berhasil!", "Destinasi berhasil dihapus", "success");
           window.location.reload();
         } else {
-          await Swal.fire("Gagal!", "Terjadi kesalahan saat menghapus.", "error");
+          await Swal.fire(
+            "Gagal!",
+            "Terjadi kesalahan saat menghapus.",
+            "error"
+          );
         }
       } catch {
         await Swal.fire("Error!", "Gagal menghapus destinasi.", "error");
@@ -82,8 +86,8 @@ export function DestinationTable({ destinasi }: Props) {
   );
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
+    <Card className="shadow-lg border border-gray-100">
+      <CardHeader className="pb-4 border-b border-gray-100">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
             <div className="relative w-full md:w-64">
@@ -92,14 +96,16 @@ export function DestinationTable({ destinasi }: Props) {
                 value={searchTerm}
                 onChange={handleSearch}
                 placeholder="Cari destinasi..."
-                className="pl-9"
+                className="pl-9 rounded-full"
               />
             </div>
 
             <ImportExportButtons data={destinasi} />
 
             <Link href="/admin/destination/create">
-              <Button className="whitespace-nowrap">+ Tambah Destinasi</Button>
+              <Button className="whitespace-nowrap rounded-full px-4 bg-blue-600 hover:bg-blue-700 text-white">
+                + Tambah Destinasi
+              </Button>
             </Link>
           </div>
         </div>
@@ -108,7 +114,7 @@ export function DestinationTable({ destinasi }: Props) {
       <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-gray-50">
               <TableHead>Nama</TableHead>
               <TableHead>Lokasi</TableHead>
               <TableHead>Harga</TableHead>
@@ -118,8 +124,13 @@ export function DestinationTable({ destinasi }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((item) => (
-              <TableRow key={item.id}>
+            {filtered.map((item, idx) => (
+              <TableRow
+                key={item.id}
+                className={`transition-colors hover:bg-gray-50 ${
+                  idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"
+                }`}
+              >
                 <TableCell className="font-medium">{item.nama}</TableCell>
                 <TableCell>{item.lokasi}</TableCell>
                 <TableCell>Rp{item.harga.toLocaleString()}</TableCell>
@@ -131,28 +142,40 @@ export function DestinationTable({ destinasi }: Props) {
                     year: "numeric",
                   })}
                 </TableCell>
-                <TableCell className="text-center space-x-2">
+                <TableCell className="text-center space-x-1">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Link href={`/admin/destinasi/${item.id}`}>
-                          <Button size="icon" variant="outline">
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="rounded-full"
+                          >
                             <Eye className="w-4 h-4" />
                           </Button>
                         </Link>
                       </TooltipTrigger>
-                      <TooltipContent>Detail</TooltipContent>
+                      <TooltipContent>
+                        <p>Detail</p>
+                      </TooltipContent>
                     </Tooltip>
 
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Link href={`/admin/destinasi/${item.id}/edit`}>
-                          <Button size="icon" variant="secondary">
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="rounded-full"
+                          >
                             <Pencil className="w-4 h-4" />
                           </Button>
                         </Link>
                       </TooltipTrigger>
-                      <TooltipContent>Edit</TooltipContent>
+                      <TooltipContent>
+                        <p>Edit</p>
+                      </TooltipContent>
                     </Tooltip>
 
                     <Tooltip>
@@ -162,15 +185,18 @@ export function DestinationTable({ destinasi }: Props) {
                           variant="destructive"
                           onClick={() => handleDelete(item.id)}
                           disabled={deletingId === item.id}
+                          className="rounded-full"
                         >
                           {deletingId === item.id ? (
-                            <span className="text-xs">...</span>
+                            <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
                             <Trash2 className="w-4 h-4" />
                           )}
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>Hapus</TooltipContent>
+                      <TooltipContent>
+                        <p>Hapus</p>
+                      </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </TableCell>
