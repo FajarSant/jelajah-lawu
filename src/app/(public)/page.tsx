@@ -1,48 +1,126 @@
 "use client";
 
-
-import CategoryCard from "@/components/public/CategoryCard";
-import HeroBanner from "@/components/public/HeroBanner";
-import RecommendationCard from "@/components/public/RecomendationCard";
-import { MapPin, Car, Home, Utensils } from "lucide-react";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { Search, MapPin, Car, Home, Utensils } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function HomePage() {
   const categories = [
-    { title: "Destinasi", icon: MapPin, href: "/destinasi", color: "bg-gradient-to-r from-blue-500 to-indigo-500" },
-    { title: "Jeep Tour", icon: Car, href: "/jeep", color: "bg-gradient-to-r from-green-500 to-teal-500" },
-    { title: "Villa", icon: Home, href: "/villa", color: "bg-gradient-to-r from-pink-500 to-rose-500" },
-    { title: "Restoran", icon: Utensils, href: "/restoran", color: "bg-gradient-to-r from-yellow-500 to-orange-500" },
+    { name: "Destinasi", icon: MapPin, color: "bg-blue-100 text-blue-600" },
+    { name: "Jeep", icon: Car, color: "bg-yellow-100 text-yellow-600" },
+    { name: "Villa", icon: Home, color: "bg-green-100 text-green-600" },
+    { name: "Restoran", icon: Utensils, color: "bg-pink-100 text-pink-600" },
   ];
 
-  const recommendations = [
-    { title: "Pantai Kuta", description: "Nikmati pasir putih dan ombak yang mempesona.", image: "/images/rekomendasi-1.jpg", href: "/detail/1" },
-    { title: "Gunung Bromo", description: "Pengalaman jeep tour yang tak terlupakan.", image: "/images/rekomendasi-2.jpg", href: "/detail/2" },
-    { title: "Villa Bali", description: "Rasakan kenyamanan villa private di tepi pantai.", image: "/images/rekomendasi-3.jpg", href: "/detail/3" },
+  const rekomendasi = [
+    {
+      title: "Gunung Lawu",
+      image: "/images/lawu.jpg",
+      location: "Karanganyar, Jawa Tengah",
+    },
+    {
+      title: "Telaga Sarangan",
+      image: "/images/sarangan.jpg",
+      location: "Magetan, Jawa Timur",
+    },
+    {
+      title: "Air Terjun Grojogan Sewu",
+      image: "/images/grojogan.jpg",
+      location: "Tawangmangu, Jawa Tengah",
+    },
   ];
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <HeroBanner />
+    <div className="min-h-screen bg-white text-gray-900">
+      {/* Hero Section */}
+      <section className="relative h-[70vh] w-full">
+        <Image
+          src="/images/hero-travel.jpg"
+          alt="Hero Travel"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center text-white px-4">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl font-bold mb-4"
+          >
+            Jelajahi Keindahan Lawu
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="text-lg md:text-xl mb-6"
+          >
+            Temukan destinasi terbaik, jeep, villa, dan kuliner dalam satu aplikasi.
+          </motion.p>
+          {/* Search Bar */}
+          <div className="bg-white rounded-full flex items-center shadow-lg w-full max-w-xl overflow-hidden">
+            <input
+              type="text"
+              placeholder="Cari destinasi, jeep, villa, restoran..."
+              className="flex-1 px-4 py-3 text-gray-700 outline-none"
+            />
+            <Button className="rounded-none rounded-r-full px-6 py-3">
+              <Search size={20} />
+            </Button>
+          </div>
+        </div>
+      </section>
 
-      {/* Categories */}
-      <section className="py-16 px-6 max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-10">Jelajahi Berdasarkan Kategori</h2>
+      {/* Kategori Populer */}
+      <section className="py-12 px-4 max-w-6xl mx-auto">
+        <h2 className="text-2xl font-bold mb-6">Kategori Populer</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {categories.map((cat) => (
-            <CategoryCard key={cat.title} {...cat} />
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              key={cat.name}
+              className={`flex flex-col items-center justify-center gap-3 p-6 rounded-xl shadow-sm border ${cat.color} cursor-pointer hover:shadow-md`}
+            >
+              <cat.icon size={28} />
+              <span className="font-medium">{cat.name}</span>
+            </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Recommendations */}
-      <section className="py-16 px-6 max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-10">Rekomendasi Untuk Anda</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {recommendations.map((rec) => (
-            <RecommendationCard key={rec.title} {...rec} />
+      {/* Rekomendasi Destinasi */}
+      <section className="py-12 px-4 max-w-6xl mx-auto">
+        <h2 className="text-2xl font-bold mb-6">Rekomendasi Untuk Anda</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {rekomendasi.map((item) => (
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              key={item.title}
+              className="bg-white rounded-xl overflow-hidden shadow-md cursor-pointer"
+            >
+              <div className="relative w-full h-48">
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-4">
+                <h3 className="text-lg font-semibold">{item.title}</h3>
+                <p className="text-sm text-gray-500">{item.location}</p>
+              </div>
+            </motion.div>
           ))}
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-50 py-8 mt-12 text-center text-gray-500 text-sm">
+        © {new Date().getFullYear()} Jelajah Lawu. Semua hak dilindungi.
+      </footer>
     </div>
   );
 }
